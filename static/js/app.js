@@ -3470,5 +3470,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     refreshProfileUI();
   }
 
+  // =========================================================================
+  // 17. ALGORITHMIC & MATHEMATICAL ARCHITECTURE MODAL HANDLER
+  // =========================================================================
+  const btnOpenAlgo = document.getElementById('btnOpenAlgorithmsModal');
+  const modalAlgo = document.getElementById('algorithmsMatrixModal');
+  const btnCloseAlgo1 = document.getElementById('btnCloseAlgorithmsModal');
+  const btnCloseAlgo2 = document.getElementById('btnCloseAlgorithmsModalBtn');
+
+  if (btnOpenAlgo && modalAlgo) {
+    btnOpenAlgo.addEventListener('click', () => {
+      modalAlgo.style.display = 'flex';
+    });
+  }
+  if (btnCloseAlgo1 && modalAlgo) {
+    btnCloseAlgo1.addEventListener('click', () => {
+      modalAlgo.style.display = 'none';
+    });
+  }
+  if (btnCloseAlgo2 && modalAlgo) {
+    btnCloseAlgo2.addEventListener('click', () => {
+      modalAlgo.style.display = 'none';
+    });
+  }
+  if (modalAlgo) {
+    modalAlgo.addEventListener('click', (e) => {
+      if (e.target === modalAlgo) {
+        modalAlgo.style.display = 'none';
+      }
+    });
+  }
+
   console.log('[SwasthyaAI] All 3D Anatomy, Profile, & Medical Intelligence modules successfully mounted!');
 });
