@@ -1,0 +1,982 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Emergency Quick Action Banner -->
+<div class="emergency-banner-alert" id="emergencyTopBanner">
+  <div class="emergency-banner-left" style="display: flex; align-items: center; gap: 1rem;">
+    <div class="emergency-radar-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+        <span class="emergency-banner-title" data-i18n="emergency_banner_title">EMERGENCY RED-FLAG ADVISORY SYSTEM</span>
+        <span class="emergency-banner-tag">CLINICAL ALERT</span>
+      </div>
+      <div class="emergency-banner-desc" data-i18n="emergency_banner_desc">Immediate clinical guidance for acute coronary distress, stroke FAST alerts, respiratory obstruction, or surgical peritonitis.</div>
+    </div>
+  </div>
+  <button class="emergency-btn" id="emergencyTopBtn" data-i18n="emergency_activate_btn">
+    <span>⚡ Activate Emergency Console</span>
+  </button>
+</div>
+
+<!-- Primary Holographic Navigation Deck (8 Modules) -->
+<div class="nav-deck-container">
+  <div class="nav-card active" data-target="moduleAssessment">
+    <div class="nav-card-icon">🧬</div>
+    <div class="nav-card-title" data-i18n="nav_triage_title">3D Triage &amp; NLP</div>
+    <div class="nav-card-desc" data-i18n="nav_triage_desc">3D anatomy scanner &amp; natural language triage.</div>
+  </div>
+
+  <div class="nav-card" data-target="moduleMedicalInfo">
+    <div class="nav-card-icon">📚</div>
+    <div class="nav-card-title" data-i18n="nav_atlas_title">Medical Atlas</div>
+    <div class="nav-card-desc" data-i18n="nav_atlas_desc">Probabilistic BM25 search across WHO &amp; ICMR.</div>
+  </div>
+
+  <div class="nav-card" data-target="moduleMedicines">
+    <div class="nav-card-icon">💊</div>
+    <div class="nav-card-title" data-i18n="nav_pharmacy_title">Pharmacy Matrix</div>
+    <div class="nav-card-desc" data-i18n="nav_pharmacy_desc">Generic database &amp; pairwise drug safety.</div>
+  </div>
+
+  <div class="nav-card" data-target="moduleImageAI">
+    <div class="nav-card-icon">🔬</div>
+    <div class="nav-card-title" data-i18n="nav_vision_title">Vision Screening</div>
+    <div class="nav-card-desc" data-i18n="nav_vision_desc">Local sharpness validation &amp; CXR/lesion AI.</div>
+  </div>
+
+  <div class="nav-card emergency-card" data-target="moduleEmergency">
+    <div class="nav-card-icon">🚨</div>
+    <div class="nav-card-title" style="color: var(--neon-rose);" data-i18n="nav_emergency_title">Emergency Dispatch</div>
+    <div class="nav-card-desc" data-i18n="nav_emergency_desc">Immediate 112/108 SOS &amp; trauma routing.</div>
+  </div>
+
+  <div class="nav-card" data-target="moduleFacilities">
+    <div class="nav-card-icon">🏥</div>
+    <div class="nav-card-title" data-i18n="nav_map_title">Offline GPS Map</div>
+    <div class="nav-card-desc" data-i18n="nav_map_desc">Haversine distance &amp; Dijkstra / A* routing.</div>
+  </div>
+
+  <div class="nav-card" data-target="moduleHealthRecords">
+    <div class="nav-card-icon">🪪</div>
+    <div class="nav-card-title" data-i18n="nav_records_title">Patient Profile</div>
+    <div class="nav-card-desc" data-i18n="nav_records_desc">Encrypted medical ID, baseline vitals &amp; allergy safety matrix.</div>
+  </div>
+
+  <div class="nav-card" data-target="moduleDiagnostics">
+    <div class="nav-card-icon">📊</div>
+    <div class="nav-card-title" data-i18n="nav_sentinel_title">System Sentinel</div>
+    <div class="nav-card-desc" data-i18n="nav_sentinel_desc">10-point real-time offline engine audit.</div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 1. MODULE: 3D ANATOMICAL SCANNER & NATURAL LANGUAGE SYMPTOM TRIAGE       -->
+<!-- ========================================================================= -->
+<div class="module-view active" id="moduleAssessment">
+
+  <!-- Top Bar: Anatomical Controls, Gender Switch & Anatomical Search -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.85rem; margin-bottom: 1.25rem; background: rgba(6, 11, 24, 0.7); border: 1px solid var(--border-neon); border-radius: var(--radius-md); padding: 0.85rem 1.25rem;">
+    <!-- Male / Female Model Selector -->
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <span style="font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase;" data-i18n="anatomy_model_label">
+        Anatomy Model:
+      </span>
+      <button class="hud-pill-btn active" id="btnGenderMale" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-color: var(--neon-cyan); color: #fff; background: rgba(6, 182, 212, 0.25);" data-i18n="male_anatomy">
+        ♂ Male Anatomy
+      </button>
+      <button class="hud-pill-btn" id="btnGenderFemale" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; border-color: rgba(236, 72, 153, 0.5); color: #f472b6;" data-i18n="female_anatomy">
+        ♀ Female Anatomy
+      </button>
+    </div>
+
+    <!-- Search Anatomical Region -->
+    <div style="position: relative; flex: 1; max-width: 420px; min-width: 260px;">
+      <input type="text" class="form-input" id="searchAnatomyInput"
+        data-i18n-placeholder="search_anatomy_placeholder"
+        placeholder="🔍 Search body part (e.g. Heart, Right Knee, Liver, Appendix)..."
+        style="padding: 0.45rem 0.85rem; font-size: 0.82rem; background: rgba(3, 7, 18, 0.85); border-color: var(--border-subtle);">
+      <div id="anatomySearchResultsDropdown" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #070e20; border: 1px solid var(--border-neon); border-radius: var(--radius-sm); z-index: 100; max-height: 220px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.8);"></div>
+    </div>
+
+    <!-- Triage History Button -->
+    <div>
+      <button class="btn-secondary" id="btnOpenTriageHistory" style="padding: 0.45rem 0.95rem; font-size: 0.8rem;" data-i18n="triage_history_btn">
+        📜 Triage History
+      </button>
+    </div>
+  </div>
+
+  <div class="split-hero-container">
+
+    <!-- LEFT COLUMN: 3D Anatomical Body Visualizer Viewport -->
+    <div class="hologram-viewport-card" style="padding: 0; overflow: hidden; background: #18191c; border-radius: var(--radius-lg);">
+      <div class="hologram-canvas-container" id="hologram3DContainer" style="width: 100%; height: 100%; min-height: 600px; background: #18191c; position: relative;">
+        <!-- 360° Anatomy Canvas injected here -->
+        <div class="hologram-hover-tooltip" id="hologramHoverTooltip"></div>
+      </div>
+      <div class="hologram-active-banner" id="hologramActiveBanner" style="display: none;"></div>
+    </div>
+
+    <!-- RIGHT COLUMN: Clinical Multi-Factor Intake & Decision Support Terminal -->
+    <div class="clinical-terminal-card">
+      <div class="module-header">
+        <h2 class="module-title">
+          <span>🩺</span>
+          <span data-i18n="triage_section_title">Offline Clinical Triage &amp; Multi-Factor Intake</span>
+        </h2>
+        <p class="module-subtitle" data-i18n="triage_section_subtitle">Touch any body region on the 3D anatomy visualizer or search above to initiate rule-based offline triage.</p>
+      </div>
+
+      <!-- Active Selected Anatomical Target Card -->
+      <div id="selectedRegionSummaryCard" style="background: rgba(6, 11, 24, 0.85); border: 1px solid var(--border-neon); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.15rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--neon-sky); text-transform: uppercase;" data-i18n="active_region_label">Active Anatomical Region:</div>
+            <div id="activeRegionNameText" style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; color: var(--text-pure); margin-top: 0.15rem;">
+              Chest Wall &amp; Heart Area
+            </div>
+            <div id="activeRegionSystemText" style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.15rem;">
+              <span data-i18n="body_system_label">Body System:</span> <strong style="color: var(--neon-cyan);">Cardiovascular / Musculoskeletal</strong>
+            </div>
+          </div>
+          <span class="badge badge-low" id="activeRegionBadge" data-i18n="region_ready_badge">Region Ready</span>
+        </div>
+      </div>
+
+      <!-- Live Patient Profile Auto-Sync Banner -->
+      <div id="triageProfileSyncBanner" style="margin-bottom: 1.15rem; padding: 0.65rem 1rem; background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.35); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.15rem;">👤</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 0.82rem; color: var(--text-pure); font-weight: 800;" id="triageProfileNameDisplay">Guest Patient</span>
+              <span class="badge badge-low" id="triageProfileBadge" data-i18n="profile_synced_badge" style="font-size: 0.68rem; padding: 0.15rem 0.5rem;">👤 Profile Auto-Synced</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--neon-sky);" id="triageProfileDetailsDisplay">
+              Age: 28 | Blood: O+ | No Allergies Recorded
+            </div>
+          </div>
+        </div>
+        <button type="button" class="hud-pill-btn" onclick="if(window.showModule) window.showModule('moduleHealthRecords');" style="padding: 0.25rem 0.65rem; font-size: 0.72rem; color: var(--neon-cyan); border-color: var(--border-neon);">
+          Edit Profile ➔
+        </button>
+      </div>
+
+      <!-- Interactive Region-Specific Clinical Questionnaire Container -->
+      <div id="targetedQuestionnaireCard" style="background: rgba(8, 16, 36, 0.85); border: 1px solid var(--border-neon); border-radius: var(--radius-md); padding: 1rem 1.15rem; margin-bottom: 1.15rem; box-shadow: inset 0 0 25px rgba(6, 182, 212, 0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.1rem;">🩺</span>
+            <div>
+              <div id="questionnaireTitle" style="font-family: var(--font-display); font-size: 0.86rem; font-weight: 800; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.04em;" data-i18n="questionnaire_title">
+                Clinical Assessment Questions
+              </div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);" data-i18n="questionnaire_subtitle">
+                Select the specific signs describing your condition for pinpoint analysis:
+              </div>
+            </div>
+          </div>
+          <span class="badge badge-low" id="questionnaireRegionTag" style="font-size: 0.68rem; padding: 0.2rem 0.6rem;" data-i18n="questionnaire_tap_tag">
+            Tap Answers
+          </span>
+        </div>
+        
+        <!-- Dynamic Questions Flow -->
+        <div id="dynamicQuestionsContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Populated dynamically when user clicks any body part on 3D viewer -->
+        </div>
+      </div>
+
+      <!-- Region-Specific Predefined Symptom Chips -->
+      <div style="margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center;">
+        <span
+          style="font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.05em;" data-i18n="additional_symptoms_label">
+          ⚡ Additional Region Symptoms:
+        </span>
+      </div>
+
+      <div class="symptom-chip-grid" id="symptomChipGrid" style="margin-bottom: 1rem;">
+        <!-- Populated dynamically based on selected region -->
+      </div>
+
+      <!-- Clinical Natural Language Narrative Input -->
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label class="form-label" style="margin-bottom: 0;" data-i18n="symptom_prompt_label">What problem or symptoms are you experiencing?</label>
+          <div style="display: flex; gap: 0.6rem; align-items: center;">
+            <button type="button" id="btnVoiceInput" class="hud-pill-btn" style="padding: 0.2rem 0.6rem; font-size: 0.72rem; color: var(--neon-emerald); border-color: rgba(16, 185, 129, 0.4);" data-i18n="voice_input_btn">
+              🎤 Voice Input
+            </button>
+            <button type="button" id="btnClearSymptomInput"
+              style="background: none; border: none; color: var(--neon-rose); font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer; text-decoration: underline;" data-i18n="clear_prompt_btn">
+              Clear prompt
+            </button>
+          </div>
+        </div>
+        <textarea class="form-textarea" id="symptomInput" rows="3"
+          data-i18n-placeholder="symptom_input_placeholder"
+          placeholder="e.g. My lower right abdomen has been hurting for 8 hours and it becomes worse when I walk with nausea..."></textarea>
+      </div>
+
+      <!-- Multi-Factor Clinical Attributes Matrix -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.15rem; background: rgba(3, 7, 18, 0.6); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        
+        <!-- Age Group -->
+        <div>
+          <label class="form-label" style="font-size: 0.72rem; margin-bottom: 0.25rem;" data-i18n="age_group_label">Age Group</label>
+          <select class="form-select" id="intakeAgeGroup" data-i18n-select style="padding: 0.35rem 0.6rem; font-size: 0.78rem;">
+            <option value="adult" data-i18n="age_adult" selected>Adult (18-64)</option>
+            <option value="child" data-i18n="age_child">Child (&lt;12 yrs)</option>
+            <option value="adolescent" data-i18n="age_adolescent">Adolescent (12-17)</option>
+            <option value="senior" data-i18n="age_senior">Senior (65+ yrs)</option>
+          </select>
+        </div>
+
+        <!-- Severity -->
+        <div>
+          <label class="form-label" style="font-size: 0.72rem; margin-bottom: 0.25rem;" data-i18n="severity_label">Severity</label>
+          <select class="form-select" id="intakeSeverity" data-i18n-select style="padding: 0.35rem 0.6rem; font-size: 0.78rem;">
+            <option value="Moderate" data-i18n="severity_moderate" selected>Moderate</option>
+            <option value="Mild" data-i18n="severity_mild">Mild</option>
+            <option value="Severe" data-i18n="severity_severe">Severe / Intense</option>
+          </select>
+        </div>
+
+        <!-- Duration -->
+        <div>
+          <label class="form-label" style="font-size: 0.72rem; margin-bottom: 0.25rem;" data-i18n="duration_label">Duration</label>
+          <select class="form-select" id="intakeDuration" data-i18n-select style="padding: 0.35rem 0.6rem; font-size: 0.78rem;">
+            <option value="hours" data-i18n="duration_hours" selected>Hours (&lt;24h)</option>
+            <option value="days" data-i18n="duration_days">1 - 3 Days</option>
+            <option value="weeks" data-i18n="duration_weeks">Weeks / Chronic (&gt;2w)</option>
+          </select>
+        </div>
+
+        <!-- Female Pregnancy Check (Conditional) -->
+        <div id="femalePregnancyGroup">
+          <label class="form-label" style="font-size: 0.72rem; margin-bottom: 0.25rem; color: #f472b6;" data-i18n="pregnancy_label">Pregnancy Possible?</label>
+          <select class="form-select" id="intakePregnancy" data-i18n-select style="padding: 0.35rem 0.6rem; font-size: 0.78rem;">
+            <option value="no" data-i18n="pregnancy_no" selected>No / Unlikely</option>
+            <option value="yes" data-i18n="pregnancy_yes">Yes / Possible</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Clinical Simulation Presets -->
+      <div
+        style="margin-bottom: 0.4rem; font-family: var(--font-display); font-size: 0.75rem; color: var(--neon-cyan); font-weight: 700; text-transform: uppercase;" data-i18n="presets_label">
+        ⚡ Instant Case Simulations:
+      </div>
+      <div class="preset-chip-bar">
+        <button class="preset-btn" id="presetCardiac" data-i18n="preset_cardiac">
+          ❤️ Cardiac MI / Angina
+        </button>
+        <button class="preset-btn" id="presetStroke" data-i18n="preset_stroke">
+          🧠 Stroke Warning (FAST)
+        </button>
+        <button class="preset-btn" id="presetAsthma" data-i18n="preset_asthma">
+          🫁 Asthma Distress
+        </button>
+        <button class="preset-btn" id="presetAppendicitis" data-i18n="preset_appendicitis">
+          🩺 Acute Appendicitis
+        </button>
+        <button class="preset-btn" id="presetKidneyStone" data-i18n="preset_kidney_stone">
+          🚽 Kidney Stone Colic
+        </button>
+        <button class="preset-btn" id="presetKneeStrain" data-i18n="preset_knee_strain">
+          🦵 Knee Muscle Strain
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem;">
+        <button class="btn-primary" id="btnRunAssessment" style="flex: 1; justify-content: center; padding: 0.85rem 1.5rem; font-size: 0.95rem;">
+          <span>🔍</span>
+          <span data-i18n="run_triage_btn">Run Offline Clinical Triage</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Assessment Output Area -->
+  <div id="assessmentResultsArea" style="display: none; margin-top: 2rem;"></div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: OFFLINE TRIAGE SESSION HISTORY                                    -->
+<!-- ========================================================================= -->
+<div class="modal-backdrop" id="triageHistoryModal" style="display: none;">
+  <div class="modal-content" style="max-width: 650px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--neon-cyan);" data-i18n="history_modal_title">
+        📜 Local Offline Triage History
+      </h3>
+      <button class="btn-icon" id="btnCloseHistoryModal">✕</button>
+    </div>
+
+    <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1rem;" data-i18n="history_modal_desc">
+      All session records are stored 100% locally in your browser's private IndexedDB storage. No health data is uploaded to external clouds.
+    </p>
+
+    <div id="triageHistoryListContainer" style="max-height: 320px; overflow-y: auto; margin-bottom: 1.25rem;"></div>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap;">
+      <button class="btn-secondary" id="btnExportTriageHistory" data-i18n="btn_export_history">
+        📥 Export Data (JSON)
+      </button>
+      <button class="btn-secondary" id="btnClearAllHistory" style="border-color: rgba(244, 63, 94, 0.4); color: #fda4af;" data-i18n="btn_clear_history">
+        🗑️ Clear History
+      </button>
+      <button class="btn-primary" id="btnCloseHistoryModalBtn" data-i18n="btn_close_history">
+        Close Window
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 2. MODULE: MEDICAL INFORMATION & ATLAS (PROBABILISTIC BM25)              -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleMedicalInfo">
+  <div class="clinical-terminal-card">
+    <div class="module-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 class="module-title">
+          <span>📚</span>
+          <span data-i18n="atlas_title">Verified Medical Knowledge Atlas</span>
+        </h2>
+        <p class="module-subtitle" data-i18n="atlas_subtitle">Full-text Inverted Index and Probabilistic BM25 search across WHO &amp; ICMR medical topics with zero latency.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span class="badge badge-low" style="font-size: 0.74rem;">✓ 100% Offline Index Active</span>
+      </div>
+    </div>
+
+    <!-- Quick Category Filter Bar -->
+    <div class="atlas-category-filter-bar" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.65rem; margin-bottom: 1rem; scrollbar-width: thin;">
+      <button type="button" class="atlas-cat-btn active" data-cat="all">🌐 All Topics</button>
+      <button type="button" class="atlas-cat-btn" data-cat="Infectious">🦠 Infectious Diseases</button>
+      <button type="button" class="atlas-cat-btn" data-cat="Cardiovascular">❤️ Cardiovascular</button>
+      <button type="button" class="atlas-cat-btn" data-cat="Respiratory">🫁 Respiratory</button>
+      <button type="button" class="atlas-cat-btn" data-cat="Gastrointestinal">🩺 Gastrointestinal</button>
+      <button type="button" class="atlas-cat-btn" data-cat="Emergency">🚨 Emergency Red-Flags</button>
+      <button type="button" class="atlas-cat-btn" data-cat="Medicine">💊 Essential Medicines</button>
+    </div>
+
+    <!-- Search Bar with Instant Clear & Voice Search -->
+    <div class="form-group" style="position: relative; margin-bottom: 0.75rem;">
+      <input type="text" class="form-input" id="searchMedicalInput"
+        data-i18n-placeholder="atlas_search_placeholder"
+        placeholder="🔍 Ask any medical question or search condition (e.g. 'What to do for Dengue?', 'Pneumonia CURB-65', 'Paracetamol dosage', 'Appendicitis signs')..."
+        style="padding-right: 5.5rem; font-size: 0.95rem;">
+      <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 0.4rem;">
+        <button type="button" id="btnAtlasVoiceSearch" title="Ask with Voice (Speech-to-Text)" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--neon-emerald); border-radius: var(--radius-sm); padding: 0.25rem 0.5rem; font-size: 0.88rem; cursor: pointer;">🎙️</button>
+        <button type="button" id="btnClearAtlasSearch" style="display: none; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+    </div>
+
+    <!-- Quick Clinical Question Pills -->
+    <div class="atlas-quick-pills" style="display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.25rem; scrollbar-width: thin;">
+      <span style="font-size: 0.76rem; color: var(--text-muted); align-self: center; white-space: nowrap; margin-right: 0.2rem;">💡 Ask:</span>
+      <button type="button" class="btn-quick-ask" data-ask="What to do for Dengue fever?">🦟 Dengue Protocol</button>
+      <button type="button" class="btn-quick-ask" data-ask="Acute chest pain and heart attack emergency protocol">❤️ Chest Pain Emergency</button>
+      <button type="button" class="btn-quick-ask" data-ask="Pneumonia symptoms and CURB-65 criteria">🫁 Pneumonia Management</button>
+      <button type="button" class="btn-quick-ask" data-ask="How to diagnose Acute Appendicitis?">🩺 Appendicitis Signs</button>
+      <button type="button" class="btn-quick-ask" data-ask="Paracetamol safe dosage and warnings">💊 Paracetamol Dosage</button>
+      <button type="button" class="btn-quick-ask" data-ask="Stroke FAST symptoms and emergency steps">🚨 Stroke FAST</button>
+      <button type="button" class="btn-quick-ask" data-ask="Severe dehydration and ORS solution preparation">💧 Dehydration &amp; ORS</button>
+      <button type="button" class="btn-quick-ask" data-ask="Anaphylaxis first line treatment and epinephrine">⚠️ Anaphylaxis Protocol</button>
+    </div>
+
+    <!-- Direct AI Clinical Answer Box Container -->
+    <div id="atlasDirectAnswerContainer" style="display: none; margin-bottom: 1.5rem;"></div>
+
+    <!-- Featured Essential Clinical Guides (Quick Tap Cards) -->
+    <div id="atlasFeaturedGuidesContainer" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span style="font-family: var(--font-display); font-size: 0.84rem; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.04em;">
+          ⚡ Popular Clinical Topics &amp; Guidelines:
+        </span>
+        <span style="font-size: 0.74rem; color: var(--text-muted);">Click any card for instant clinical details</span>
+      </div>
+      <div class="atlas-featured-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem;">
+        <div class="atlas-guide-card" data-query="Dengue Fever">
+          <div style="font-size: 1.4rem; margin-bottom: 0.35rem;">🦟</div>
+          <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-pure);">Dengue Clinical Protocol</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.2rem;">Platelet monitoring, hydration &amp; warning signs</div>
+          <div class="badge badge-low" style="margin-top: 0.5rem; font-size: 0.68rem;">WHO Protocol</div>
+        </div>
+
+        <div class="atlas-guide-card" data-query="Acute Coronary Syndrome">
+          <div style="font-size: 1.4rem; margin-bottom: 0.35rem;">❤️</div>
+          <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-pure);">Acute Coronary Syndrome</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.2rem;">MI triage, radiation patterns &amp; MONA emergency</div>
+          <div class="badge badge-urgent" style="margin-top: 0.5rem; font-size: 0.68rem;">Emergency FAST</div>
+        </div>
+
+        <div class="atlas-guide-card" data-query="Pneumonia">
+          <div style="font-size: 1.4rem; margin-bottom: 0.35rem;">🫁</div>
+          <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-pure);">Pneumonia Management</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.2rem;">CURB-65 criteria, SpO2 &amp; antibiotic therapy</div>
+          <div class="badge badge-caution" style="margin-top: 0.5rem; font-size: 0.68rem;">ICMR Guidelines</div>
+        </div>
+
+        <div class="atlas-guide-card" data-query="Acute Appendicitis">
+          <div style="font-size: 1.4rem; margin-bottom: 0.35rem;">🩺</div>
+          <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-pure);">Acute Appendicitis</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.2rem;">McBurney point tenderness &amp; surgical peritonitis</div>
+          <div class="badge badge-urgent" style="margin-top: 0.5rem; font-size: 0.68rem;">Surgical Alert</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Filter Results Display Area -->
+    <div id="searchResultsArea">
+      <div style="color: var(--text-muted); font-size: 0.85rem; font-family: var(--font-mono); text-align: center; padding: 2.5rem; background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);" data-i18n="atlas_empty_prompt">
+        Type a medical query above or tap any category to search WHO &amp; ICMR medical topics with zero latency.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Comprehensive Medical Topic Clinical Deep-Dive -->
+<div class="modal-backdrop" id="atlasTopicModal" style="display: none;">
+  <div class="modal-content" style="max-width: 680px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="atlasModalIcon" style="font-size: 1.5rem;">📖</span>
+        <div>
+          <h3 id="atlasModalTitle" style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: var(--text-pure); margin: 0;">Topic Title</h3>
+          <div id="atlasModalMeta" style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--neon-cyan); margin-top: 0.15rem;">Category &amp; Source</div>
+        </div>
+      </div>
+      <button class="btn-icon" id="btnCloseAtlasTopicModal">✕</button>
+    </div>
+
+    <div id="atlasModalBody" style="max-height: 440px; overflow-y: auto; padding-right: 0.35rem; line-height: 1.6; font-size: 0.88rem;">
+      <!-- Detailed Clinical Info Injected Here -->
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+      <button class="btn-primary" id="btnLaunchTriageFromAtlas" data-i18n="btn_launch_triage_modal">
+        🩺 Launch 3D Triage for this Condition
+      </button>
+      <button class="btn-secondary" id="btnCloseAtlasTopicModalBtn" data-i18n="btn_close_modal">
+        Close Window
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 3. MODULE: MEDICINE INFORMATION & INTERACTIONS                            -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleMedicines">
+  <div class="clinical-terminal-card">
+    <div class="module-header">
+      <h2 class="module-title">
+        <span>💊</span>
+        <span data-i18n="pharmacy_title">Offline Pharmacy Repository &amp; Drug Matrix</span>
+      </h2>
+      <p class="module-subtitle" data-i18n="pharmacy_subtitle">Verified reference information on approved medicines, contraindications, and pairwise drug interactions.</p>
+    </div>
+
+    <div
+      style="background: rgba(6, 11, 24, 0.7); border: 1px solid var(--border-neon); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+      <h3
+        style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 0.85rem;" data-i18n="drug_eval_title">
+        ⚡ Pairwise Multi-Drug Interaction Evaluator
+      </h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label class="form-label" data-i18n="med_a_label">Medication A</label>
+          <select class="form-select" id="medSelectA"></select>
+        </div>
+        <div>
+          <label class="form-label" data-i18n="med_b_label">Medication B</label>
+          <select class="form-select" id="medSelectB"></select>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnCheckInteraction" style="padding: 0.65rem 1.5rem;" data-i18n="btn_check_interaction">
+        ⚡ Evaluate Drug Interaction Matrix
+      </button>
+      <div id="interactionResultArea"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 4. MODULE: SUPPORTED IMAGE ANALYSIS                                       -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleImageAI">
+  <div class="clinical-terminal-card">
+    <div class="module-header">
+      <h2 class="module-title">
+        <span>🔬</span>
+        <span data-i18n="vision_title">Supported Medical Image Quality &amp; Screening</span>
+      </h2>
+      <p class="module-subtitle" data-i18n="vision_subtitle">Local offline sharpness validation, blur variance analysis, and visual screening for selected validated tasks.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.4fr); gap: 1.75rem; align-items: start;">
+      <div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="select_task_label">Select Validated Screening Task</label>
+          <select class="form-select" id="imageTaskSelect" data-i18n-select>
+            <option value="skin_lesion" data-i18n="task_skin_lesion">Dermatology Skin Lesion Screening (ISIC Benchmark)</option>
+            <option value="chest_xray" data-i18n="task_chest_xray">Chest Radiograph Opacity Screening (CXR Benchmark)</option>
+          </select>
+        </div>
+
+        <div class="dropzone-container" onclick="document.getElementById('imageFileInput').click();">
+          <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+          <div class="dropzone-icon">📷</div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 1rem;" data-i18n="dropzone_title">Tap or Drag to Upload Medical Image</div>
+          <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem;" data-i18n="dropzone_subtitle">Evaluates sharpness, blur variance, contrast &amp; resolution locally</div>
+          <div id="imagePreviewContainer"></div>
+        </div>
+
+        <button class="btn-primary" id="btnRunImageAnalysis" disabled style="width: 100%; justify-content: center;" data-i18n="btn_run_vision">
+          Run Local Vision Pipeline
+        </button>
+      </div>
+
+      <div id="imageAnalysisOutput">
+        <div
+          style="background: rgba(6, 11, 24, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;" data-i18n="vision_empty_prompt">
+          Select an image and run local analysis to view quality metrics, blur variance, classification probabilities, and uncertainty estimates.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 5. MODULE: EMERGENCY ASSISTANCE MODE                                      -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleEmergency">
+  <div
+    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(159, 18, 57, 0.35)); border: 2px solid var(--neon-ruby); border-radius: var(--radius-xl); padding: 2.25rem; margin-bottom: 1.5rem; box-shadow: var(--glow-emergency);">
+    <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem;">
+      <span style="font-size: 3rem;">🚨</span>
+      <div>
+        <h2
+          style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 900; color: #fff; letter-spacing: -0.01em;" data-i18n="emergency_protocol_title">
+          URGENT MEDICAL EMERGENCY PROTOCOL</h2>
+        <p style="color: #fecdd3; font-size: 0.92rem;" data-i18n="emergency_protocol_subtitle">Predefined clinical red flags require immediate emergency stabilization and dispatch without delay.</p>
+      </div>
+    </div>
+
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+      <div
+        style="background: rgba(0, 0, 0, 0.5); border-radius: var(--radius-md); padding: 1.5rem; border: 1px solid rgba(225, 29, 72, 0.5);">
+        <div
+          style="font-family: var(--font-mono); font-size: 0.78rem; color: #fecdd3; font-weight: 700; text-transform: uppercase;" data-i18n="national_dispatch_label">
+          NATIONAL EMERGENCY DISPATCH</div>
+        <div
+          style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; color: #fff; margin: 0.35rem 0;" data-i18n="dispatch_numbers">
+          📞 112 / 108</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="dispatch_desc">Direct 24/7 Ambulance, Police, and Fire Rescue Services</div>
+      </div>
+
+      <div
+        style="background: rgba(0, 0, 0, 0.5); border-radius: var(--radius-md); padding: 1.5rem; border: 1px solid rgba(225, 29, 72, 0.5);">
+        <div
+          style="font-family: var(--font-mono); font-size: 0.78rem; color: #fecdd3; font-weight: 700; text-transform: uppercase;" data-i18n="nearest_trauma_label">
+          NEAREST 24/7 TRAUMA CENTER</div>
+        <div
+          style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0.35rem 0;" data-i18n="trauma_center_name">
+          Metropolis Central Trauma</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="trauma_center_desc">Distance: 0.8 km | ICU, Cardiac Care &amp; Stroke Unit</div>
+      </div>
+    </div>
+
+    <!-- Auto-Fetched Patient Emergency Medical ID Summary -->
+    <div id="emergencyPatientProfileBox" style="margin-top: 1.25rem; background: rgba(0, 0, 0, 0.65); border: 1px solid rgba(253, 164, 175, 0.4); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div>
+        <div style="font-family: var(--font-display); font-size: 0.88rem; font-weight: 800; color: #fda4af; text-transform: uppercase; letter-spacing: 0.04em;">
+          👤 Patient Emergency Profile: <span id="emergencyPatientNameDisplay" style="color: #fff;">Guest Patient</span>
+        </div>
+        <div style="font-size: 0.76rem; color: #fecdd3; margin-top: 0.2rem;" id="emergencyPatientMetaDisplay">
+          Blood: O+ | Allergies: None Recorded | Comorbidities: None Recorded
+        </div>
+      </div>
+      <div id="emergencyContactCallBox">
+        <a id="emergencyContactPhoneLink" href="tel:112" class="hud-pill-btn" style="background: rgba(225, 29, 72, 0.3); border-color: #fda4af; color: #fff; text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+          📞 Call ICE Contact (<span id="emergencyContactNameDisplay">112</span>)
+        </a>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.75rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="showModule('moduleFacilities');"
+        style="background: linear-gradient(135deg, #e11d48, #be123c);" data-i18n="btn_view_map_route">
+        🗺️ View Offline Map &amp; Navigation Route
+      </button>
+      <button class="btn-secondary"
+        onclick="if(window.qrShare) window.qrShare.openShareModal({risk_level: 'URGENT', decision_support_summary: 'Emergency ACS / FAST Red Flag Detected'});" data-i18n="btn_display_emergency_qr">
+        📱 Display Urgent Medical QR Code
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 6. MODULE: HEALTHCARE FACILITIES & OFFLINE MAP                            -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleFacilities">
+  <div class="clinical-terminal-card">
+    <div class="module-header"
+      style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 class="module-title">
+          <span>🏥</span>
+          <span data-i18n="map_title">Offline Facility Radar &amp; Geodesic Router</span>
+        </h2>
+        <p class="module-subtitle" data-i18n="map_subtitle">Preloaded hospital directory, Haversine distance calculator, and Dijkstra / A* route optimizer.</p>
+      </div>
+      <div>
+        <label
+          style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--neon-sky); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: rgba(6, 11, 24, 0.7); padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <input type="checkbox" id="roadObstructionToggle">
+          <span data-i18n="simulate_blocked_road">Simulate Blocked Central Road</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Interactive Map Canvas -->
+    <div class="map-container">
+      <canvas id="mapCanvas"></canvas>
+    </div>
+
+    <div class="map-legend">
+      <div class="legend-item"><span class="legend-dot" style="background: #e11d48;"></span> <span data-i18n="legend_emergency">24/7 Trauma / Emergency</span></div>
+      <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> <span data-i18n="legend_hospital">Hospital</span></div>
+      <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> <span data-i18n="legend_clinic">Primary Clinic</span></div>
+      <div class="legend-item"><span class="legend-dot" style="background: #f59e0b;"></span> <span data-i18n="legend_pharmacy">24/7 Pharmacy</span></div>
+      <div class="legend-item"><span class="legend-dot" style="background: #06b6d4;"></span> <span data-i18n="legend_you">You (GPS)</span></div>
+    </div>
+
+    <div id="routingTurnByTurnArea"></div>
+
+    <div style="margin-top: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+        <h3 style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-pure);" data-i18n="facilities_heading">
+          Preloaded Healthcare Facilities</h3>
+        <select class="form-select" id="facilityFilterSelect" data-i18n-select
+          style="width: auto; padding: 0.4rem 0.85rem; font-size: 0.8rem;">
+          <option value="" data-i18n="filter_all_facilities">All Facility Types</option>
+          <option value="EMERGENCY_CENTER" data-i18n="filter_emergency">Emergency &amp; Trauma</option>
+          <option value="HOSPITAL" data-i18n="filter_hospitals">Hospitals</option>
+          <option value="CLINIC" data-i18n="filter_clinics">Clinics</option>
+          <option value="PHARMACY" data-i18n="filter_pharmacies">Pharmacies</option>
+        </select>
+      </div>
+      <div class="facility-grid" id="facilitiesListContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 7. MODULE: PATIENT MEDICAL PROFILE & ENCRYPTED MEDICAL ID PASSPORT        -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleHealthRecords">
+  <div class="clinical-terminal-card">
+    <div class="module-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 class="module-title">
+          <span>🪪</span>
+          <span data-i18n="profile_heading">Patient Medical Profile &amp; Emergency ID</span>
+        </h2>
+        <p class="module-subtitle" data-i18n="profile_subheading">All clinical modules auto-fetch your demographics, chronic conditions, and allergy matrix to provide personalized, conflict-free guidance.</p>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn-primary" id="btnSavePatientProfile" data-i18n="btn_save_profile">
+          💾 Save &amp; Sync Patient Profile
+        </button>
+        <button class="btn-secondary" id="btnClearPatientProfile" data-i18n="btn_clear_profile">
+          🗑️ Clear Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Emergency Medical ID Card Hologram Preview -->
+    <div style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(16, 185, 129, 0.08)); border: 1px solid var(--border-neon); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--neon-cyan); color: #060b18; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem;" id="profileAvatarInitial">
+            P
+          </div>
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; color: var(--text-pure); margin: 0;" id="cardDisplayName">
+              Guest Patient
+            </h3>
+            <div style="font-size: 0.75rem; color: var(--neon-sky);" id="cardDisplayMeta">
+              Age: 28 | Male | Blood: O+ | BMI: 22.5
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <span class="badge badge-low" id="cardSyncStatusBadge" data-i18n="profile_synced_badge">👤 Profile Auto-Synced</span>
+          <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;" id="cardLastSavedText">
+            100% Offline Local Sandbox
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Summary Chips Grid inside ID card -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.8rem;">
+        <div style="background: rgba(3, 7, 18, 0.6); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <strong style="color: var(--neon-rose); display: block; font-size: 0.72rem; text-transform: uppercase;">⚠️ Drug &amp; Food Allergies</strong>
+          <span id="cardDisplayAllergies" style="color: var(--text-pure);">None Recorded</span>
+        </div>
+        <div style="background: rgba(3, 7, 18, 0.6); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <strong style="color: var(--neon-amber); display: block; font-size: 0.72rem; text-transform: uppercase;">🩺 Chronic Conditions</strong>
+          <span id="cardDisplayConditions" style="color: var(--text-pure);">None Recorded</span>
+        </div>
+        <div style="background: rgba(3, 7, 18, 0.6); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <strong style="color: var(--neon-emerald); display: block; font-size: 0.72rem; text-transform: uppercase;">📞 Emergency Contact</strong>
+          <span id="cardDisplayEmergency" style="color: var(--text-pure);">Not Configured</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Profile Form -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+      
+      <!-- Column 1: Demographics & Vitals -->
+      <div style="background: rgba(6, 11, 24, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h4 style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="profile_section_personal">
+          <span>👤</span> 1. Personal Demographics &amp; Vitals
+        </h4>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="profile_full_name">Full Name</label>
+          <input type="text" class="form-input" id="profileFullNameInput" placeholder="e.g. Rajesh Kumar Mohapatra">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="profile_age">Age (Years)</label>
+            <input type="number" class="form-input" id="profileAgeInput" min="0" max="120" value="28">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="profile_gender">Biological Sex</label>
+            <select class="form-select" id="profileGenderSelect">
+              <option value="male">Male (♂)</option>
+              <option value="female">Female (♀)</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="profile_blood_group">Blood Group</label>
+            <select class="form-select" id="profileBloodGroupSelect">
+              <option value="O+">O Positive (O+)</option>
+              <option value="O-">O Negative (O-)</option>
+              <option value="A+">A Positive (A+)</option>
+              <option value="A-">A Negative (A-)</option>
+              <option value="B+">B Positive (B+)</option>
+              <option value="B-">B Negative (B-)</option>
+              <option value="AB+">AB Positive (AB+)</option>
+              <option value="AB-">AB Negative (AB-)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="profile_weight">Weight (kg)</label>
+            <input type="number" class="form-input" id="profileWeightInput" min="2" max="250" value="65">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="profile_height">Height (cm)</label>
+            <input type="number" class="form-input" id="profileHeightInput" min="40" max="240" value="170">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(3, 7, 18, 0.6); padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-top: 0.5rem;">
+          <span style="font-size: 0.78rem; color: var(--text-secondary);" data-i18n="profile_bmi">Calculated BMI:</span>
+          <strong style="color: var(--neon-emerald); font-family: var(--font-mono);" id="profileBmiDisplay">22.5 (Normal)</strong>
+        </div>
+      </div>
+
+      <!-- Column 2: Clinical Baseline, Allergies & Comorbidities -->
+      <div style="background: rgba(6, 11, 24, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h4 style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="profile_section_clinical">
+          <span>🩺</span> 2. Clinical Baseline &amp; Allergy Matrix
+        </h4>
+
+        <!-- Known Allergies with quick chips -->
+        <div class="form-group">
+          <label class="form-label" data-i18n="profile_allergies_label">Known Drug / Food Allergies</label>
+          <input type="text" class="form-input" id="profileAllergiesInput"
+            data-i18n-placeholder="profile_allergies_placeholder"
+            placeholder="e.g. Penicillin, Sulfa, Aspirin, NSAIDs, Peanuts, Latex...">
+          <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem;" id="quickAllergyChips">
+            <button type="button" class="symptom-chip profile-allergy-chip" data-val="Penicillin">Penicillin</button>
+            <button type="button" class="symptom-chip profile-allergy-chip" data-val="Sulfa Drugs">Sulfa Drugs</button>
+            <button type="button" class="symptom-chip profile-allergy-chip" data-val="Aspirin / NSAIDs">Aspirin / NSAIDs</button>
+            <button type="button" class="symptom-chip profile-allergy-chip" data-val="Peanuts">Peanuts</button>
+            <button type="button" class="symptom-chip profile-allergy-chip" data-val="Latex">Latex</button>
+          </div>
+        </div>
+
+        <!-- Chronic Conditions with quick chips -->
+        <div class="form-group" style="margin-top: 0.85rem;">
+          <label class="form-label" data-i18n="profile_conditions_label">Chronic Medical Conditions / Comorbidities</label>
+          <input type="text" class="form-input" id="profileConditionsInput"
+            data-i18n-placeholder="profile_conditions_placeholder"
+            placeholder="e.g. Hypertension, Type 2 Diabetes, Asthma, Heart Disease...">
+          <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem;" id="quickConditionChips">
+            <button type="button" class="symptom-chip profile-cond-chip" data-val="Hypertension">Hypertension</button>
+            <button type="button" class="symptom-chip profile-cond-chip" data-val="Type 2 Diabetes">Type 2 Diabetes</button>
+            <button type="button" class="symptom-chip profile-cond-chip" data-val="Asthma / COPD">Asthma / COPD</button>
+            <button type="button" class="symptom-chip profile-cond-chip" data-val="CAD / Heart Disease">Heart Disease</button>
+            <button type="button" class="symptom-chip profile-cond-chip" data-val="Chronic Kidney Disease">Kidney Disease</button>
+          </div>
+        </div>
+
+        <!-- Regular Medications & Pregnancy -->
+        <div class="form-group" style="margin-top: 0.85rem;">
+          <label class="form-label" data-i18n="profile_medications_label">Current Regular Medications</label>
+          <input type="text" class="form-input" id="profileMedicationsInput"
+            data-i18n-placeholder="profile_medications_placeholder"
+            placeholder="e.g. Metformin 500mg, Amlodipine 5mg, Inhaler...">
+        </div>
+
+        <div class="form-group" id="profilePregnancyGroup" style="margin-top: 0.85rem; display: none;">
+          <label class="form-label" data-i18n="profile_pregnancy_label">Pregnancy Status (if applicable)</label>
+          <select class="form-select" id="profilePregnancySelect">
+            <option value="no">No / Not Pregnant</option>
+            <option value="yes">Yes (Currently Pregnant)</option>
+            <option value="possible">Possible</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Emergency Contacts & Odisha District -->
+    <div style="margin-top: 1.5rem; background: rgba(6, 11, 24, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem;">
+      <h4 style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--neon-rose); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;" data-i18n="profile_section_emergency">
+        <span>🚨</span> 3. Emergency Contact &amp; Home Location
+      </h4>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+        <div class="form-group">
+          <label class="form-label" data-i18n="profile_emergency_name">Emergency Contact Name</label>
+          <input type="text" class="form-input" id="profileEmergencyNameInput" placeholder="e.g. Dr. A. Mohapatra">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="profile_emergency_relation">Relationship</label>
+          <select class="form-select" id="profileEmergencyRelationSelect">
+            <option value="Spouse">Spouse / Partner</option>
+            <option value="Parent">Parent / Guardian</option>
+            <option value="Child">Son / Daughter</option>
+            <option value="Sibling">Brother / Sister</option>
+            <option value="Doctor">Primary Care Doctor</option>
+            <option value="Friend">Friend / Colleague</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="profile_emergency_phone">Emergency Phone Number</label>
+          <input type="tel" class="form-input" id="profileEmergencyPhoneInput" placeholder="e.g. +91 98765 43210">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="profile_district">Home District (Odisha)</label>
+          <select class="form-select" id="profileDistrictSelect">
+            <option value="Bhubaneswar">Bhubaneswar (Khordha)</option>
+            <option value="Cuttack">Cuttack</option>
+            <option value="Puri">Puri</option>
+            <option value="Sambalpur">Sambalpur</option>
+            <option value="Rourkela">Rourkela (Sundargarh)</option>
+            <option value="Balasore">Balasore</option>
+            <option value="Berhampur">Berhampur (Ganjam)</option>
+            <option value="Angul">Angul</option>
+            <option value="Baripada">Baripada (Mayurbhanj)</option>
+            <option value="Koraput">Koraput</option>
+            <option value="Other">Other / Remote</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div style="font-size: 0.78rem; color: var(--neon-sky);" data-i18n="profile_auto_fetch_tip">
+        ⚡ Profile details are automatically applied to 3D Triage, Pharmacy safety alerts, and Emergency SOS.
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-primary" id="btnSavePatientProfileBottom" data-i18n="btn_save_profile">
+          💾 Save &amp; Sync Patient Profile
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 8. MODULE: OFFLINE SYSTEM CHECK (DIAGNOSTICS)                             -->
+<!-- ========================================================================= -->
+<div class="module-view" id="moduleDiagnostics">
+  <div class="clinical-terminal-card">
+    <div class="module-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h2 class="module-title">
+          <span>📊</span>
+          <span data-i18n="sentinel_title">10-Point "Zero-Cloud System Sentinel"</span>
+        </h2>
+        <p class="module-subtitle" data-i18n="sentinel_subtitle">Self-testing verification matrix confirming all offline subsystems are operational with zero cloud APIs.</p>
+      </div>
+      <button class="btn-secondary" id="btnRunDiagnostics" data-i18n="btn_rerun_diag">
+        🔄 Re-run Diagnostics
+      </button>
+    </div>
+
+    <div id="diagnosticsOutputArea"></div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: OFFLINE QR CODE REPORT SHARING                                     -->
+<!-- ========================================================================= -->
+<div class="modal-backdrop" id="qrShareModal">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--neon-cyan);" data-i18n="qr_modal_title">
+        Offline Report Transfer</h3>
+      <button class="btn-icon" id="closeQRModalBtn">✕</button>
+    </div>
+
+    <p style="font-size: 0.84rem; color: var(--text-secondary);" data-i18n="qr_modal_desc">
+      Display this offline QR matrix to a doctor or paramedic's device to transfer the encrypted decision-support report without internet or mobile network.
+    </p>
+
+    <div class="qr-canvas-container">
+      <canvas id="qrCodeCanvas"></canvas>
+    </div>
+
+    <pre id="qrPayloadJson"
+      style="background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.75rem; color: var(--neon-sky); max-height: 140px; overflow-y: auto; font-family: var(--font-mono);"></pre>
+
+    <button class="btn-secondary" onclick="window.qrShare.closeModal();"
+      style="width: 100%; margin-top: 1rem; justify-content: center;" data-i18n="btn_close_qr">
+      Close Transfer Window
+    </button>
+  </div>
+</div>
+
+{% endblock %}

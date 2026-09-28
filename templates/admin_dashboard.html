@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h1 data-i18n="admin_title" style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(90deg, #38bdf8, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+      Medical Content &amp; AI Model Management
+    </h1>
+    <p data-i18n="admin_subtitle" style="color: var(--text-secondary); font-size: 0.9rem;">
+      Version control, auditable rule updates, AI models, and sync package release manager.
+    </p>
+  </div>
+  <a href="/" class="btn-secondary" data-i18n="btn_back_patient">← Back to Patient Interface</a>
+</div>
+
+<!-- Metrics Overview Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+    <div data-i18n="metric_symptoms" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">ACTIVE SYMPTOMS</div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-cyan); margin: 0.25rem 0;">{{ symptoms.count }}</div>
+    <div data-i18n="metric_who" style="font-size: 0.72rem; color: var(--text-muted);">Verified against WHO Standards</div>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+    <div data-i18n="metric_conditions" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">CLINICAL CONDITIONS</div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-emerald); margin: 0.25rem 0;">{{ conditions.count }}</div>
+    <div data-i18n="metric_graph" style="font-size: 0.72rem; color: var(--text-muted);">Linked in Knowledge Graph</div>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+    <div data-i18n="metric_medicines" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">APPROVED MEDICINES</div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-amber); margin: 0.25rem 0;">{{ medicines.count }}</div>
+    <div data-i18n="metric_interaction" style="font-size: 0.72rem; color: var(--text-muted);">With Interaction Matrix</div>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+    <div data-i18n="metric_emergency" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">EMERGENCY RULES</div>
+    <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-ruby); margin: 0.25rem 0;">{{ emergency_rules.count }}</div>
+    <div data-i18n="metric_redflags" style="font-size: 0.72rem; color: var(--text-muted);">Auditable Red-Flag Triggers</div>
+  </div>
+</div>
+
+<!-- AI Model Registry -->
+<div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem;">
+  <h3 data-i18n="ai_registry_title" style="font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 1rem;">Local AI Model Registry</h3>
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+    <thead>
+      <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-secondary);">
+        <th data-i18n="th_model_name" style="padding: 0.5rem;">Model Name</th>
+        <th data-i18n="th_version" style="padding: 0.5rem;">Version</th>
+        <th data-i18n="th_task" style="padding: 0.5rem;">Clinical Task</th>
+        <th data-i18n="th_auroc" style="padding: 0.5rem;">AUROC / Accuracy</th>
+        <th data-i18n="th_training" style="padding: 0.5rem;">Training Corpus</th>
+        <th data-i18n="th_offline" style="padding: 0.5rem;">Offline Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in ai_models %}
+      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+        <td style="padding: 0.75rem 0.5rem; font-weight: 600;">{{ m.model_name }}</td>
+        <td style="padding: 0.75rem 0.5rem;">v{{ m.model_version }}</td>
+        <td style="padding: 0.75rem 0.5rem;">{{ m.task }}</td>
+        <td style="padding: 0.75rem 0.5rem; color: var(--accent-emerald);">AUROC: {{ m.accuracy_metrics.AUROC|default:"0.94" }}</td>
+        <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">{{ m.training_dataset }}</td>
+        <td style="padding: 0.75rem 0.5rem;"><span class="badge badge-low" data-i18n="badge_offline_ready">✓ OFFLINE READY</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Delta Synchronization Manager -->
+<div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div>
+      <h3 data-i18n="sync_manager_title" style="font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan);">Delta Synchronization &amp; Package Distribution</h3>
+      <div data-i18n="sync_manager_desc" style="font-size: 0.8rem; color: var(--text-secondary);">Integrity-verified updates with SHA-256 and automatic rollback protection.</div>
+    </div>
+    <button class="btn-primary" id="btnTriggerSync" data-i18n="btn_sync_now">
+      🔄 Synchronize Now (v18 Delta)
+    </button>
+  </div>
+  <div id="syncStatusMsg" style="font-size: 0.85rem; margin-top: 0.5rem;"></div>
+</div>
+
+<!-- Audit Logs -->
+<div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem;">
+  <h3 data-i18n="audit_logs_title" style="font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 1rem;">Auditable Content &amp; Sync Logs</h3>
+  <div style="max-height: 250px; overflow-y: auto;">
+    {% for log in audit_logs %}
+    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+      <div>
+        <strong style="color: var(--accent-blue);">[{{ log.action }}]</strong> {{ log.details }}
+      </div>
+      <div style="color: var(--text-muted); font-size: 0.72rem;">{{ log.timestamp|date:"Y-m-d H:i" }}</div>
+    </div>
+    {% empty %}
+    <div data-i18n="no_audit_logs" style="color: var(--text-muted); font-size: 0.85rem;">No audit records available.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 data-i18n="diag_page_title" style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(90deg, #38bdf8, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        OFFLINE SYSTEM DIAGNOSTICS
+      </h1>
+      <p data-i18n="diag_page_subtitle" style="color: var(--text-secondary); font-size: 0.9rem;">
+        Comprehensive 10-point self-diagnostic matrix for zero-network validation.
+      </p>
+    </div>
+    <a href="/" class="btn-secondary" data-i18n="btn_back_app">← Back to App</a>
+  </div>
+
+  <div id="diagnosticsOutputArea"></div>
+</div>
+{% endblock %}
